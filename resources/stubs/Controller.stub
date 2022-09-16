@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Filters\{{ SingularModelName }}Filter;
+use App\Http\Resources\{{ SingularModelName }}\{{ SingularModelName }}Collection;
+use App\Http\Resources\{{ SingularModelName }}\{{ SingularModelName }}Resource;
+use App\Models\{{ SingularModelName }};
+
+class {{ PluralModelName }}Controller extends ApiController
+{
+    use CrudTrait;
+
+    protected string|Model $model = {{ SingularModelName }}::class;
+
+    protected string $policy = {{ SingularModelName }}Policy::class;
+
+    protected string $collection = {{ SingularModelName }}Collection::class;
+
+    protected string $resource = {{ SingularModelName }}Resource::class;
+
+    protected string $filter = {{ SingularModelName }}Filter::class;
+}

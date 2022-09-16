@@ -1,0 +1,85 @@
+<template>
+    <div class="grow">
+        <page-header :buttons="pageActions.buttons" :additional="pageActions.additional" @method="methodHandler">
+            <template #title>
+                {{ PluralModelName }}
+            </template>
+        </page-header>
+        <InnerContent>
+            <pro-table
+                ref="datatable"
+                :resource="resource"
+                :fields="fields"
+                :filters="filters"
+                :filters-loading="filtersLoading"
+                :limit="100"
+                class="lg:px-6 px-4 pt-2"
+                sort="first"
+                direction="ASC"
+                delete-label="REPLACE"
+                :allow-double-click="false"
+                @action="actionHandler"
+            />
+        </InnerContent>
+    </div>
+</template>
+
+<script>
+import { onBeforeMount } from 'vue'
+import { proTable } from '@niftee-group/niftee-core/src/components/pro-table/utils/proTable'
+
+export default {
+    name: '{{ PluralModelName }}',
+    setup () {
+        const {
+            resource,
+            filters,
+            filtersLoading,
+            actionHandler,
+            methodHandler,
+            headerFixed,
+            numberOfFilters,
+            searchFilter
+        } = proTable()
+
+        resource.value = '{{ PluralModelNameLower }}'
+        numberOfFilters.value = 1
+
+        const pageActions = {
+            buttons: [
+                {
+                    label: 'New {{ SingularModelName }}',
+                    icon: 'plus',
+                    type: 'router-link',
+                    link: '/{{ PluralModelNameLower }}/create',
+                    iconClass: 'text-green-600'
+                }
+            ],
+            additional: []
+        }
+
+        const fields = [
+            {
+                name: 'REPLACE',
+                column: 'REPLACE',
+                sortCol: 'REPLACE'
+            }
+        ]
+
+        onBeforeMount(() => {
+            searchFilter()
+        })
+
+        return {
+            resource,
+            fields,
+            pageActions,
+            filtersLoading,
+            actionHandler,
+            methodHandler,
+            filters,
+            headerFixed
+        }
+    }
+}
+</script>

@@ -1,0 +1,178 @@
+<template>
+    <div class="flex flex-col h-full">
+        <spinner v-if="loading" />
+        <page-header :buttons="pageActions.buttons" :additional="pageActions.additional" @method="methodHandler">
+            <template #title>
+                {{ item.name }}<small class="text-xs ml-2">{{ SingularModelName }}</small>
+            </template>
+        </page-header>
+        <div class="w-full flex flex-col overflow-hidden grow">
+            <tabs
+                ref="tabs"
+                :tabs="pageTabs"
+                :active="startTab"
+                :dynamic="true"
+                @setTab="setActiveTab"
+            />
+            <content-right-sidebar v-if="!loading" :fixed-tabs="true">
+                <template #left>
+                    <grid-content v-if="activeTab === 'details'" :row-gap="0">
+
+                    </grid-content>
+                    <notes
+                        v-if="activeTab === 'notes'"
+                        :id="item.id"
+                        model="{{ SingularModelName }}"
+                        :notes="item.notes"
+                        :read-only="isAdmin"
+                    />
+                </template>
+                <template #right>
+                    <grid-content :row-gap="0">
+                        <h2 class="w-full col-span-12 pb-2 border-b-2 border-charcoal-900 text-left font-medium text-charcoal-900 text-lg pt-px">
+                            Details
+                        </h2>
+                        <table class="w-full mb-6 internal-table col-span-12">
+                            <tbody>
+                                <tr>
+                                    <td>REPLACE</td>
+                                    <td class="text-right">
+                                        {{ item.REPLACE }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </grid-content>
+                </template>
+            </content-right-sidebar>
+        </div>
+
+        <confirmation-modal v-if="showDeleteModal" @close="closeDeleteModal" @confirm="deleteItem">
+            <template #heading>
+                Delete Confirmation
+            </template>
+            <template #content>
+                Are you sure you want to delete - <strong>{{ item.name }}</strong>?
+            </template>
+            <template #confirm-button>
+                Delete
+            </template>
+        </confirmation-modal>
+    </div>
+</template>
+
+<script>
+import { computed, onMounted, ref, watch } from 'vue'
+import { tabs as TabsUtil } from '@niftee-group/niftee-core/src/utils/tabs'
+import { view } from '@niftee-group/niftee-core/src/utils/view'
+import { datetime } from '@niftee-group/niftee-core/src/utils/datetime'
+import { common } from '@niftee-group/niftee-core/src/utils/common'
+import { useRouter } from 'vue-router'
+
+export default {
+    name: '{{ SingularModelName }}View',
+    props: {
+        id: {
+            required: true,
+            type: String
+        }
+    },
+    setup(props) {
+        const { dayjs } = datetime()
+        const { canAccess } = common()
+        const { startTab, activeTab, setActiveTab } = TabsUtil()
+        const {
+            resource,
+            loading,
+            methodHandler,
+            item,
+            returnPath,
+            mounted,
+            toast,
+            store,
+            showDeleteModal,
+            closeDeleteModal,
+            deleteItem,
+            getData,
+            actionHandler,
+            router,
+        } = view()
+
+        resource.value = '{{ PluralModelNameLower }}'
+        returnPath.value = '/{{ PluralModelNameLower }}'
+
+        const pageActions = ref({})
+
+        const pageTabs = [
+            {
+                name: 'Details',
+                slug: 'details'
+            },
+            {
+                name: 'Notes',
+                slug: 'notes'
+            }
+        ]
+
+        onMounted(async () => {
+            const router = useRouter()
+
+            await mounted(props, startTab).catch((error) => {
+                router.push('/{{ PluralModelNameLower }}')
+                toast.error(error)
+            })
+        })
+
+        watch(item, (item) => {
+            pageActions.value = {
+                buttons: [
+                    {
+                        label: 'Edit',
+                        icon: 'edit',
+                        type: 'router-link',
+                        link: '/{{ PluralModelNameLower }}/' + props.id + '/edit',
+                        iconClass: 'text-gray-700',
+                    },
+                    {
+                        label: 'Close',
+                        icon: 'times',
+                        type: 'router-link',
+                        iconClass: 'text-red-500',
+                        link: returnPath.value ? returnPath.value : '/{{ PluralModelNameLower }}'
+                    }
+                ],
+                additional: [
+                    {
+                        label: 'Delete',
+                        icon: 'trash-alt',
+                        type: 'method',
+                        method: 'deleteModal',
+                        iconClass: 'text-red-500',
+                        display: store.getters.nimdarepus
+                    }
+                ]
+            }
+        })
+
+        return {
+            loading,
+            pageActions,
+            methodHandler,
+            item,
+            pageTabs,
+            startTab,
+            setActiveTab,
+            activeTab,
+            dayjs,
+            showDeleteModal,
+            closeDeleteModal,
+            deleteItem,
+            actionHandler,
+            getData,
+            canAccess,
+            isAdmin: store.getters.nimdarepus,
+            router,
+        }
+    }
+}
+</script>

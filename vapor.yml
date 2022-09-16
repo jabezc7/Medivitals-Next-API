@@ -1,0 +1,21 @@
+id: 30660
+name: medivitals-next-api
+environments:
+  production:
+    timeout: 180
+    memory: 1024
+    cli-memory: 512
+    runtime: docker
+    domain: api.medivitals.app
+    database: fixed-production
+    cache: production-cache
+    separate-vendor: true
+    scheduler: true
+    storage: medivitals
+    build:
+      - 'COMPOSER_MIRROR_PATH_REPOS=1 composer install'
+      - 'php artisan event:cache'
+    deploy:
+      - 'php artisan migrate --force'
+      - 'php artisan cache:clear'
+      - 'php artisan route:clear'

@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\{{ SingularModelName }};
+
+class {{ SingularModelName }}Policy extends BasePolicy
+{
+    protected function getModelClass(): string
+    {
+        return {{ SingularModelName }}::class;
+    }
+
+    protected function getResourceSlug(): string
+    {
+        return '{{ PluralModelNameLower }}';
+    }
+}

@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Http\Resources\{{ SingularModelName }};
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Support\Collection;
+
+class {{ SingularModelName }}Collection extends ResourceCollection
+{
+    public function toArray($request): Collection
+    {
+        return $this->collection->map(function (${{ SingularModelNameLower }}) {
+            return [
+                'id' => ${{ SingularModelNameLower }}->id,
+            ];
+        });
+    }
+}

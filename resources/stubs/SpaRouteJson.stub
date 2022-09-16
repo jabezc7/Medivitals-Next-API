@@ -1,0 +1,40 @@
+{
+    path: '{{ PluralModelNameLower }}',
+    component: () => import('@niftee-group/niftee-core/src/layout/SubRoot.vue'),
+    children: [
+        {
+            name: '{{ PluralModelNameLower }}',
+            path: '',
+            component: () => import('../views/{{ PluralModelNameLower }}/{{ PluralModelName }}.vue'),
+            meta: { title: '{{ PluralModelName }}', guard: false }
+        },
+        {
+            name: 'create-{{ SingularModelNameLower }}',
+            path: 'create',
+            component: () => import('../views/{{ PluralModelNameLower }}/Form.vue'),
+            meta: { title: 'New {{ SingularModelName }}' },
+            props: {
+                type: 'New'
+            }
+        },
+        {
+            name: 'edit-{{ SingularModelNameLower }}',
+            path: ':id/edit',
+            component: () => import('../views/{{ PluralModelNameLower }}/Form.vue'),
+            meta: { title: 'Edit {{ SingularModelName }}' },
+            props: (route) => ({
+                type: 'Edit',
+                id: route.params.id
+            })
+        },
+        {
+            name: 'view-{{ SingularModelNameLower }}',
+            path: ':id/view',
+            component: () => import('../views/{{ PluralModelNameLower }}/{{ SingularModelName }}.vue'),
+            meta: { title: 'View {{ SingularModelName }}' },
+            props: (route) => ({
+                id: route.params.id
+            })
+        }
+    ]
+},

@@ -1,0 +1,164 @@
+<template>
+    <form class="h-full overflow-hidden" @submit="onSubmit">
+        <spinner v-if="loading" />
+        <page-header
+            :buttons="pageActions.buttons"
+            :additional="pageActions.additional"
+            @method="methodHandler"
+            @submit="onSubmit"
+        >
+            <template #title>
+                {{ type }} {{ SingularModelName }}
+            </template>
+        </page-header>
+        <div v-show="errorMessage || Object.keys(errors).length !== 0" class="bg-red-200 py-2 text-red-700 text-center w-full -mt-px z-20" role="alert">
+            <span v-if="errorMessage">{{ errorMessage }}</span>
+            <span v-if="Object.keys(errors).length !== 0">Please complete all required fields</span>
+        </div>
+        <div class="w-full flex flex-col overflow-hidden grow">
+            <tabs
+                ref="tabs"
+                :tabs="pageTabs"
+                :active="startTab"
+                @setTab="setActiveTab"
+            />
+            <content-right-sidebar v-if="!loading">
+                <template #left>
+                    <grid-content v-show="activeTab === 'details'">
+                        <input-text
+                            v-model="item.name"
+                            class="col-span-6"
+                            label="Name"
+                            name="name"
+                            placeholder="Name"
+                            :initial-value="item.name"
+                            rules="required"
+                        />
+                    </grid-content>
+                </template>
+                <template #right>
+                    <grid-content>
+                        <input-toggle
+                            v-model="item.active"
+                            class="col-span-6"
+                            label="Active"
+                            name="active"
+                            :initial-value="item.active"
+                        />
+                    </grid-content>
+                </template>
+            </content-right-sidebar>
+        </div>
+    </form>
+</template>
+
+<script>
+import { form } from '@niftee-group/niftee-core/src/utils/form'
+import { tabs as TabsUtil } from '@niftee-group/niftee-core/src/utils/tabs'
+import { onBeforeMount, onMounted, ref } from 'vue'
+import { useForm } from 'vee-validate'
+
+export default {
+    name: "{{ SingularModelName }}Form",
+    props: {
+        id: {
+            type: String,
+            required: false,
+            default: null
+        },
+        type: {
+            type: String,
+            required: true
+        }
+    },
+    setup (props) {
+        const {
+            handleSubmit,
+            errors
+        } = useForm()
+
+        const {
+            startTab,
+            activeTab,
+            setActiveTab
+        } = TabsUtil()
+
+        const {
+            resource,
+            loading,
+            errorMessage,
+            methodHandler,
+            item,
+            returnPath,
+            submitForm,
+            mounted,
+            saveClose,
+            getOptions
+        } = form()
+
+        resource.value = '{{ PluralModelNameLower }}'
+        returnPath.value = '/{{ PluralModelNameLower }}'
+        saveClose.value = true
+        item.value.active = true
+
+        const pageActions = {
+            buttons: [
+                {
+                    label: 'Save',
+                    icon: 'save',
+                    iconClass: 'text-green-600',
+                    type: 'submit'
+                },
+                {
+                    label: 'Cancel',
+                    icon: 'times',
+                    iconClass: 'text-red-600',
+                    type: 'method',
+                    method: 'cancel',
+                }
+            ]
+        }
+
+        const pageTabs = [
+            {
+                name: 'Details',
+                slug: 'details'
+            }
+        ]
+
+        const onSubmit = handleSubmit((values) => {
+            item.value = values
+            submitForm(props.id)
+        })
+
+        onBeforeMount(() => {
+            if (props.type === 'New'){
+                item.value.active = true
+            }
+
+            //Example Get Options
+            //getOptions('options', 'GET_OPTIONS').then(response => {
+            //   options.value = response
+            //})
+        })
+
+        onMounted(async () => {
+            await mounted(props, startTab)
+        })
+
+        return {
+            onSubmit,
+            loading,
+            methodHandler,
+            startTab,
+            activeTab,
+            setActiveTab,
+            errorMessage,
+            item,
+            pageActions,
+            pageTabs,
+            errors,
+        }
+    }
+}
+</script>
